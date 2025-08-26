@@ -12,109 +12,131 @@
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
+            overflow: hidden; /* Evita scroll en móvil */
         }
 
-        /* --- Contenedor Principal con Imagen de Fondo --- */
+        /* --- Contenedor Principal --- */
         .chat-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            max-width: 500px;
-            margin: 0 auto;
-            background-image: url('https://raw.githubusercontent.com/Dafon1981/curriculum/main/presentacion.png' );
+            width: 100vw; /* Ancho completo para móvil */
+            max-width: 100%; /* Sin límite de ancho para móvil */
+            position: relative;
+            background-image: url('https://raw.githubusercontent.com/Dafon1981/curriculum/main/presentacion.png');
             background-size: cover;
             background-position: center;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            overflow: hidden; /* Evita que los elementos se salgan */
+            background-repeat: no-repeat;
         }
 
         /* --- Cabecera con Logo y Título --- */
         .chat-header {
             display: flex;
             align-items: center;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-bottom: 1px solid #ddd;
-            position: absolute; /* Posicionamiento absoluto */
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.1); /* Muy transparente */
+            backdrop-filter: blur(5px); /* Efecto de desenfoque */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: absolute;
             top: 0;
-            width: 100%;
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
-            z-index: 3;
+            left: 0;
+            right: 0;
+            z-index: 10;
         }
 
         .logo {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
         }
 
         .header-title {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
-            color: #333;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
         }
 
-        /* --- Contenedor para el chat (mensajes y entrada) --- */
+        /* --- Área de Chat (Parte Inferior) --- */
         .chat-area {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            /* AJUSTE CLAVE: El chat ocupa la mitad inferior de la pantalla */
-            height: 60%; 
+            height: 60vh; /* Ocupa 60% de la pantalla desde abajo */
             display: flex;
             flex-direction: column;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.1)); /* Degradado para mejor transición */
-            z-index: 2;
+            background-color: rgba(255, 255, 255, 0.1); /* 90% transparente */
+            backdrop-filter: blur(10px); /* Efecto de desenfoque para mejor legibilidad */
         }
 
         /* --- Área de Mensajes del Chat --- */
         .chat-messages {
             flex-grow: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            background-color: transparent;
         }
 
         .message {
-            padding: 12px 18px;
-            border-radius: 20px;
-            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 85%;
             line-height: 1.4;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            word-wrap: break-word; /* Evita que el texto se desborde */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease-in;
+            font-size: 0.9em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .assistant-message {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.95);
             color: #333;
             border-top-left-radius: 5px;
             align-self: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .user-message {
-            background-color: #dcf8c6;
-            color: #333;
+            background-color: rgba(0, 123, 255, 0.9);
+            color: white;
             border-top-right-radius: 5px;
             align-self: flex-end;
+            backdrop-filter: blur(5px);
         }
         
         .typing-indicator {
             align-self: flex-start;
             font-style: italic;
             color: white;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .error-message {
+            background-color: rgba(255, 235, 238, 0.95);
+            color: #c62828;
+            border: 1px solid rgba(255, 205, 210, 0.8);
+            align-self: center;
+            text-align: center;
+            backdrop-filter: blur(5px);
         }
 
         /* --- Área de Entrada de Texto --- */
         .chat-input-area {
             display: flex;
             padding: 15px;
-            background-color: rgba(245, 245, 245, 0.95);
-            border-top: 1px solid #ddd;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         #userInput {
@@ -124,6 +146,12 @@
             border-radius: 20px;
             margin-right: 10px;
             font-size: 1em;
+            outline: none;
+        }
+
+        #userInput:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
 
         #sendButton {
@@ -135,24 +163,44 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
+            transition: background-color 0.2s;
         }
+
         #sendButton:hover {
             background-color: #0056b3;
+        }
+
+        #sendButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 600px) {
+            .chat-container {
+                max-width: 100%;
+                height: 100vh;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
-        <header class="chat-header">
-            <img src="https://www.hospitalcayetano.gob.pe/PortalWeb/assets/icon/logo-final.png" alt="Logo Hospital" class="logo">
-            <div class="header-title">Registro y Recepción de Emergencia</div>
-        </header>
+        <!-- Área de Imagen (Mitad Superior) -->
+        <div class="image-area">
+            <header class="chat-header">
+                <img src="https://www.hospitalcayetano.gob.pe/PortalWeb/assets/icon/logo-final.png" alt="Logo Hospital" class="logo">
+                <div class="header-title">Registro y Recepción de Emergencia</div>
+            </header>
+        </div>
 
+        <!-- Área de Chat (Mitad Inferior) -->
         <div class="chat-area">
             <div class="chat-messages" id="chatMessages">
                 <!-- Los mensajes del chat se añadirán aquí dinámicamente -->
             </div>
+
             <div class="chat-input-area">
                 <input type="text" id="userInput" placeholder="Escribe tu consulta aquí...">
                 <button id="sendButton">Enviar</button>
@@ -162,38 +210,64 @@
 
     <script>
         // --- Configuración y Elementos del DOM ---
-        const chatMessages = document.getElementById('chatMessages' );
+        const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         
+        // Configuración de la API - Usando OpenAI como alternativa más confiable
         const API_KEY = "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";
-        // SOLUCIÓN API: Usamos un proxy para evitar problemas de CORS
-        const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
-        const API_URL = PROXY_URL + "https://api.kimi.ai/v1/chat/completions";
+        
+        // URLs de API alternativas para probar
+        const API_CONFIGS = [
+            {
+                name: "OpenAI",
+                url: "https://api.openai.com/v1/chat/completions",
+                model: "gpt-3.5-turbo"
+            },
+            {
+                name: "Kimi",
+                url: "https://api.moonshot.cn/v1/chat/completions",
+                model: "moonshot-v1-8k"
+            }
+        ];
+
+        let currentApiIndex = 0;
 
         // --- Historial de la Conversación ---
         let conversationHistory = [{
             role: "system",
-            content: "Eres Celeste, una asistente virtual de IA muy amigable y empática. Tu propósito es ayudar a los usuarios a registrar un FUA (Formato Único de Atención ) para el área de emergencia. Preséntate de forma cálida, explica tu función y guía al usuario paso a paso. Usa un lenguaje sencillo y tranquilizador. Tu objetivo es hacer que el proceso de registro sea lo menos estresante posible."
+            content: "Eres Celeste, una asistente virtual muy amigable del Hospital Cayetano Heredia. Tu función es ayudar a los pacientes a registrar un FUA (Formato Único de Atención) para emergencias. Saluda de forma cálida, preséntate y explica que puedes ayudar con el registro. Pregunta qué información necesita el paciente o si quiere iniciar un nuevo registro. Usa un lenguaje sencillo y empático."
         }];
 
         // --- Funciones del Chat ---
 
-        function addMessage(role, content) {
+        // Añade un mensaje a la interfaz de chat
+        function addMessage(role, content, isError = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', role === 'user' ? 'user-message' : 'assistant-message');
+            let className = 'message ';
+            
+            if (isError) {
+                className += 'error-message';
+            } else if (role === 'user') {
+                className += 'user-message';
+            } else {
+                className += 'assistant-message';
+            }
+            
+            messageDiv.className = className;
             messageDiv.textContent = content;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
+        // Muestra o oculta el indicador de "escribiendo..."
         function showTypingIndicator(show) {
             let indicator = document.getElementById('typingIndicator');
             if (show) {
                 if (!indicator) {
                     indicator = document.createElement('div');
                     indicator.id = 'typingIndicator';
-                    indicator.classList.add('message', 'typing-indicator');
+                    indicator.className = 'message typing-indicator';
                     indicator.textContent = 'Celeste está escribiendo...';
                     chatMessages.appendChild(indicator);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -205,46 +279,87 @@
             }
         }
 
+        // Función para probar diferentes APIs
+        async function tryApiCall(apiConfig, messages) {
+            const response = await fetch(apiConfig.url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: apiConfig.model,
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 500
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`${apiConfig.name} API Error: ${response.status} ${response.statusText}`);
+            }
+
+            return await response.json();
+        }
+
+        // Envía el mensaje a la API
         async function getAIResponse() {
             showTypingIndicator(true);
+            sendButton.disabled = true;
+            
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${API_KEY}`,
-                        'Content-Type': 'application/json',
-                        // El proxy puede requerir este header
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        model: "kimi/moonshot-v1-8k",
-                        messages: conversationHistory,
-                        temperature: 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.text();
-                    throw new Error(`Error de la API: ${response.status} - ${errorData}`);
+                let lastError = null;
+                
+                // Intenta con cada configuración de API
+                for (let i = 0; i < API_CONFIGS.length; i++) {
+                    const apiConfig = API_CONFIGS[(currentApiIndex + i) % API_CONFIGS.length];
+                    
+                    try {
+                        console.log(`Intentando con ${apiConfig.name}...`);
+                        const data = await tryApiCall(apiConfig, conversationHistory);
+                        
+                        const assistantResponse = data.choices[0].message.content;
+                        conversationHistory.push({ role: "assistant", content: assistantResponse });
+                        addMessage('assistant', assistantResponse);
+                        
+                        // Si llegamos aquí, la API funcionó
+                        currentApiIndex = (currentApiIndex + i) % API_CONFIGS.length;
+                        return;
+                        
+                    } catch (error) {
+                        console.error(`Error con ${apiConfig.name}:`, error);
+                        lastError = error;
+                        continue;
+                    }
                 }
-
-                const data = await response.json();
-                const assistantResponse = data.choices[0].message.content;
-
-                conversationHistory.push({ role: "assistant", content: assistantResponse });
-                addMessage('assistant', assistantResponse);
-
+                
+                // Si llegamos aquí, ninguna API funcionó
+                throw lastError || new Error("Todas las APIs fallaron");
+                
             } catch (error) {
-                console.error("Error al contactar la API:", error);
-                addMessage('assistant', 'Lo siento, estoy teniendo problemas para conectarme. Por favor, intenta de nuevo en un momento.');
+                console.error("Error final:", error);
+                
+                // Respuesta de fallback cuando no hay conexión a API
+                const fallbackResponse = "¡Hola! Soy Celeste, tu asistente virtual del Hospital Cayetano Heredia. " +
+                    "Estoy aquí para ayudarte con el registro de tu FUA (Formato Único de Atención) para emergencias. " +
+                    "Aunque tengo algunos problemas de conexión en este momento, puedo guiarte con la información que necesitas. " +
+                    "¿En qué puedo ayudarte hoy?";
+                
+                conversationHistory.push({ role: "assistant", content: fallbackResponse });
+                addMessage('assistant', fallbackResponse);
+                
             } finally {
                 showTypingIndicator(false);
+                sendButton.disabled = false;
             }
         }
 
+        // --- Lógica de Eventos ---
+
+        // Función para manejar el envío de mensajes
         function handleSend() {
             const userText = userInput.value.trim();
-            if (userText) {
+            if (userText && !sendButton.disabled) {
                 addMessage('user', userText);
                 conversationHistory.push({ role: "user", content: userText });
                 userInput.value = '';
@@ -252,20 +367,27 @@
             }
         }
 
+        // Event listeners
         sendButton.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') handleSend();
+
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !sendButton.disabled) {
+                handleSend();
+            }
         });
 
-        // Inicia la conversación automáticamente
+        // --- Inicio de la Conversación ---
         window.onload = () => {
-            // Enviamos un mensaje inicial para que Celeste se presente
-            conversationHistory.push({ role: "user", content: "Hola, necesito ayuda." });
+            // Mensaje inicial para activar la presentación de Celeste
+            conversationHistory.push({ role: "user", content: "Hola" });
             getAIResponse();
         };
+
     </script>
 </body>
 </html>
+
+
 
 
 
