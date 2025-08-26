@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de FUAS - Asistente Celeste</title>
+    <style>
+        /* --- Estilos Generales --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* --- Contenedor Principal con Imagen de Fondo --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Ocupa toda la altura de la pantalla */
+            max-width: 500px; /* Ancho típico de móvil */
+            margin: 0 auto; /* Centrado */
+            background-image: url('https://raw.githubusercontent.com/Dafon1981/curriculum/main/presentacion.png' );
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* --- Capa semitransparente para mejorar legibilidad --- */
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* Oscurece un poco el fondo */
+            z-index: 1;
+        }
+
+        /* --- Cabecera con Logo y Título --- */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
+            border-bottom: 1px solid #ddd;
+            z-index: 2; /* Por encima de la capa oscura */
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .header-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* --- Área de Mensajes del Chat --- */
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto; /* Permite scroll si los mensajes son muchos */
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Espacio entre burbujas de chat */
+            z-index: 2;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 80%;
+            line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .assistant-message {
+            background-color: #ffffff;
+            color: #333;
+            border-top-left-radius: 5px;
+            align-self: flex-start; /* Mensajes del asistente a la izquierda */
+        }
+
+        .user-message {
+            background-color: #dcf8c6;
+            color: #333;
+            border-top-right-radius: 5px;
+            align-self: flex-end; /* Mensajes del usuario a la derecha */
+        }
+        
+        .typing-indicator {
+            align-self: flex-start;
+            font-style: italic;
+            color: white;
+        }
+
+        /* --- Área de Entrada de Texto --- */
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid #ddd;
+            z-index: 2;
+        }
+
+        #userInput {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        #sendButton {
+            padding: 12px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <img src="https://www.hospitalcayetano.gob.pe/PortalWeb/assets/icon/logo-final.png" alt="Logo Hospital" class="logo">
+            <div class="header-title">Registro y Recepción de Emergencia</div>
+        </header>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Los mensajes del chat se añadirán aquí dinámicamente -->
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="Escribe tu consulta aquí...">
+            <button id="sendButton">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuración y Elementos del DOM ---
+        const chatMessages = document.getElementById('chatMessages' );
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        
+        // ¡IMPORTANTE! Reemplaza esto con tu clave de API real.
+        const API_KEY = "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";
+        const API_URL = "https://api.kimi.ai/v1/chat/completions";
+
+        // --- Historial de la Conversación ---
+        // Se inicia con el "prompt" del sistema que define la personalidad de Celeste.
+        let conversationHistory = [{
+            role: "system",
+            content: "Eres Celeste, una asistente virtual de IA muy amigable y empática. Tu propósito es ayudar a los usuarios a registrar un FUA (Formato Único de Atención ) para el área de emergencia. Preséntate de forma cálida, explica tu función y guía al usuario paso a paso. Usa un lenguaje sencillo y tranquilizador. Tu objetivo es hacer que el proceso de registro sea lo menos estresante posible."
+        }];
+
+        // --- Funciones del Chat ---
+
+        // Añade un mensaje a la interfaz de chat
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', role === 'user' ? 'user-message' : 'assistant-message');
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            // Hace scroll automático para ver el último mensaje
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Muestra o oculta el indicador de "escribiendo..."
+        function showTypingIndicator(show) {
+            let indicator = document.getElementById('typingIndicator');
+            if (show) {
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'typingIndicator';
+                    indicator.classList.add('message', 'assistant-message', 'typing-indicator');
+                    indicator.textContent = 'Celeste está escribiendo...';
+                    chatMessages.appendChild(indicator);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            } else {
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+        }
+
+        // Envía el mensaje a la API de Kimi
+        async function getAIResponse() {
+            showTypingIndicator(true);
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: "kimi/moonshot-v1-8k", // Modelo estándar de Kimi
+                        messages: conversationHistory,
+                        temperature: 0.7 // Un valor balanceado para respuestas creativas pero coherentes
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error de la API: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const assistantResponse = data.choices[0].message.content;
+
+                // Añade la respuesta de la IA al historial y a la pantalla
+                conversationHistory.push({ role: "assistant", content: assistantResponse });
+                addMessage('assistant', assistantResponse);
+
+            } catch (error) {
+                console.error("Error al contactar la API:", error);
+                addMessage('assistant', 'Lo siento, estoy teniendo problemas para conectarme. Por favor, intenta de nuevo en un momento.');
+            } finally {
+                showTypingIndicator(false);
+            }
+        }
+
+        // --- Lógica de Eventos ---
+
+        // Función para manejar el envío de mensajes
+        function handleSend() {
+            const userText = userInput.value.trim();
+            if (userText) {
+                // Añade el mensaje del usuario al historial y a la pantalla
+                addMessage('user', userText);
+                conversationHistory.push({ role: "user", content: userText });
+                userInput.value = '';
+
+                // Obtiene la respuesta de la IA
+                getAIResponse();
+            }
+        }
+
+        // Event listener para el botón de enviar
+        sendButton.addEventListener('click', handleSend);
+
+        // Event listener para la tecla "Enter" en el campo de texto
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                handleSend();
+            }
+        });
+
+        // --- Inicio de la Conversación ---
+        // Al cargar la página, la IA se presenta automáticamente.
+        window.onload = () => {
+            // Se envía un mensaje inicial vacío del "usuario" para activar la presentación de Celeste.
+            conversationHistory.push({ role: "user", content: "Hola" });
+            getAIResponse();
+        };
+
+    </script>
+</body>
+</html>
